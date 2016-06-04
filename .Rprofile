@@ -402,3 +402,17 @@ compare_matrix=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs=c("
 	mtext(side=1, text="residuals", line=2.5, cex=cex.lab)
 }
 
+
+watermark = function(){
+	tag = "DRAFT FIGURE"
+	run.date <- format(Sys.Date(), "%m-%d-%Y")
+	text(x = grconvertX(0.5, from = "npc"),  # aligner au centre des X 
+	y = grconvertY(0.5, from = "npc"), # aligner au centre des Y 
+	labels = tag, # filigrane central
+	cex = 5, font = 2, # en gros et gras
+	col = rgb(1, 0, 0, .2), # transparent 
+	srt = 45) # angle du texte = 45° 
+	texte = paste(tag, run.date)
+	mtext(texte, side = 1, line = -1, adj = 1, col = rgb(1, 0, 0, .2), cex = 1.2)
+}
+
