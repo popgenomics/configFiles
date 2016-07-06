@@ -16,7 +16,7 @@ HPD=function(x,P){
 source("~/Programmes/R/twobar.R")
 
 #fonction pour mieux visualiser une relation avec un très grand nombre de points
-plotbin=function(a, b, quantiles=5, nameA=NULL, nameB=NULL, main="", span=0.5){
+plotbin=function(a, b, quantiles=5, nameA=NULL, nameB=NULL, main="", span=0.5, cex=1, cex.lab=1, ylim=c(0,1), xlim=c(min(a), max(a)), lwd=1, cex.axis=1){
 	#a=expression ; b=Fop
 	tmp.a=na.omit(a)
 	tmp.a=na.action(tmp.a)
@@ -50,15 +50,15 @@ plotbin=function(a, b, quantiles=5, nameA=NULL, nameB=NULL, main="", span=0.5){
 			}
 #	plot(res.cov, res.fop,xlab="expression", ylab=expression(F["op"]), pch=16, col="black")
 #	plot(res.cov, res.fop,xlab=nameA, ylab=nameB, main=main, pch=16, col="black", ylim=c(c(min(res.fop, sd.fop)), max(c(res.fop, sd.fop))))
-#	plot(res.cov, res.fop,xlab=nameA, ylab=nameB, cex.lab=1.25, main=main, pch=16, col="black", ylim=c(min(res.fop)-max(sd.fop),max(res.fop)+max(sd.fop)))	#THE GOOD
-	plot(res.cov, res.fop,xlab=nameA, ylab=nameB, main=main, pch=16, col="black", ylim=c(0, 1))
+#	plot(res.cov, res.fop,xlab=nameA, ylab=nameB, cex.lab=cex.lab, main=main, pch=16, col="black", ylim=c(min(res.fop)-max(sd.fop),max(res.fop)+max(sd.fop)), cex=cex)	#THE GOOD
+	plot(res.cov, res.fop,xlab=nameA, ylab=nameB, main=main, pch=16, col="black", ylim=ylim, xlim=xlim, cex=cex, cex.lab=cex.lab, cex.axis=cex.axis)
 
 	for(i in 1:(length(bins)-1)){
 			segments(res.cov[i], res.fop[i]+sd.fop[i], res.cov[i], res.fop[i]-sd.fop[i])
 	}
 
 	mod=loess(res.fop~res.cov, span=span)
-	lines(res.cov, fitted(mod), col="red")
+	lines(res.cov, fitted(mod), col="red", lwd=lwd)
 }
 
 
@@ -275,7 +275,142 @@ plot_time=function(x){
 }
 
 
-compare_matrix=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs=c("green", "white", "red")){
+compare_matrix=function(x, y, xlab="", ylab="", zlab="", zlim = c(min(c(x,y)), max(c(x,y))), zlimResiduals=c(min(x-y), max(x-y)), cex.lab=1, couleurs=c("green", "white", "red"), watermark=F){
+	# plot 4 graphes to show matrices x, y and x-y, as well as the distribution of x-y values
+	# x = matrix of expected values
+	# y = matrix of observed values
+	gradient = colorRampPalette(couleurs)
+	
+	dev.new(width=8, height=7)
+	layout(matrix(c(1,2,3,4,5,6,7,7), byrow=T, nrow=2), width=c(4/5, 1/5, 4/5, 1/5, 4/5, 1/5, 1/2,1/2))
+
+	par(mar=c(4.5, 4, 4, 1), las=1)
+
+	# matrice x
+	if(is.null(colnames(x))){
+		plot_axes = T
+	}else{
+		plot_axes = F
+	}
+
+	image(x, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes, zlim=zlim)
+	mtext(side=3, text="expected", line=0.75, cex=cex.lab)
+
+	if(watermark){watermark()}
+
+	if(is.null(colnames(x))){
+		mtext(side=1, text=xlab, line=2.5, cex=cex.lab)
+		par(las=3)
+		mtext(side=2, text=ylab, line=2.75, cex=cex.lab)
+	}else{
+		# axe des x
+		migRates = rownames(x)
+		posX = c((seq(1, length(migRates), 2)), length(migRates))
+		axis(1, at=(posX-1)/(length(migRates)-1), labels = migRates[posX])
+		mtext(xlab, 1, line=2.5, cex=cex.lab)
+
+		# axe des y
+		extRates = colnames(x)
+		posY = c((seq(1, length(extRates), 2)), length(extRates))
+		axis(2, at=(posY-1)/(length(extRates)-1), labels = extRates[posY])
+		par(las=0)
+		mtext(ylab, 2, line=2.75, cex=cex.lab)
+	}
+
+	par(las=1)
+
+	image.scale(x, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim=zlim)
+	par(las=3)
+	mtext(side=2, text=zlab, line=2.5, cex=cex.lab)
+
+
+	# matrice y
+	par(las=1)
+	if(is.null(colnames(x))){
+		plot_axes = T
+	}else{
+		plot_axes = F
+	}
+
+	image(y, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes, zlim=zlim)
+	mtext(side=3, text="simulated", line=0.75, cex=cex.lab)
+
+	if(watermark){watermark()}
+	
+	if(is.null(colnames(y))){
+		mtext(side=1, text=xlab, line=2.5, cex=cex.lab)
+		par(las=3)
+		mtext(side=2, text=ylab, line=2.75, cex=cex.lab)
+	}else{
+		# axe des x
+		migRates = rownames(y)
+		posX = c((seq(1, length(migRates), 2)), length(migRates))
+		axis(1, at=(posX-1)/(length(migRates)-1), labels = migRates[posX])
+		mtext(xlab, 1, line=2.5, cex=cex.lab)
+
+		# axe des y
+		extRates = colnames(y)
+		posY = c((seq(1, length(extRates), 2)), length(extRates))
+		axis(2, at=(posY-1)/(length(extRates)-1), labels = extRates[posY])
+		par(las=0)
+		mtext(ylab, 2, line=2.75, cex=cex.lab)
+	}
+
+	par(las=1)
+
+	image.scale(y, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim=zlim)
+	par(las=3)
+	mtext(side=2, text=zlab, line=2.5, cex=cex.lab)
+
+
+	# residuals = x - y
+
+	par(las=1)
+	if(is.null(colnames(x))){
+		plot_axes = T
+	}else{
+		plot_axes = F
+	}
+
+	image(x-y, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes, zlim=zlimResiduals)
+	mtext(side=3, text="expected - simulated", line=0.75, cex=cex.lab)
+
+	if(watermark){watermark()}
+	
+	if(is.null(colnames(y))){
+		mtext(side=1, text=xlab, line=2.5, cex=cex.lab)
+		par(las=3)
+		mtext(side=2, text=ylab, line=2.75, cex=cex.lab)
+	}else{
+		# axe des x
+		migRates = rownames(y)
+		posX = c((seq(1, length(migRates), 2)), length(migRates))
+		axis(1, at=(posX-1)/(length(migRates)-1), labels = migRates[posX])
+		mtext(xlab, 1, line=2.5, cex=cex.lab)
+
+		# axe des y
+		extRates = colnames(y)
+		posY = c((seq(1, length(extRates), 2)), length(extRates))
+		axis(2, at=(posY-1)/(length(extRates)-1), labels = extRates[posY])
+		par(las=0)
+		mtext(ylab, 2, line=2.75, cex=cex.lab)
+	}
+
+	par(las=1)
+
+	image.scale(x-y, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim=zlimResiduals)
+	par(las=3)
+	mtext(side=2, text="residuals", line=2.75, cex=cex.lab)
+
+	z=c(x,y)
+	par(mar=c(4.5, 4, 4, 3), las=1)
+	hist(x-y, xlab="", ylab="", main="", cex.lab=cex.lab, cex.axis=cex.lab, xlim=c(-max(z), max(z)), n=20)
+	mtext(side=1, text="residuals", line=2.5, cex=cex.lab)
+
+	if(watermark){watermark()}
+}
+
+compare_matrix_fst=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs=c("green", "white", "red"), watermark=F){
 	# plot 4 graphes to show matrices x, y and x-y, as well as the distribution of x-y values
 	# x = matrix of expected values
 	# y = matrix of observed values
@@ -294,7 +429,10 @@ compare_matrix=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs=c("
 	}
 
 	image(x, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes)
-	mtext(side=3, text="expected", line=1, cex=cex.lab)
+	if(watermark==T){
+		watermark()
+	}
+	mtext(side=3, text="expected", line=0.75, cex=cex.lab)
 
 	if(is.null(colnames(x))){
 		mtext(side=1, text=xlab, line=2.5, cex=cex.lab)
@@ -331,7 +469,10 @@ compare_matrix=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs=c("
 	}
 
 	image(y, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes)
-	mtext(side=3, text="simulated", line=1, cex=cex.lab)
+	mtext(side=3, text="simulated", line=0.75, cex=cex.lab)
+	if(watermark==T){
+		watermark()
+	}
 
 	if(is.null(colnames(y))){
 		mtext(side=1, text=xlab, line=2.5, cex=cex.lab)
@@ -368,8 +509,11 @@ compare_matrix=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs=c("
 		plot_axes = F
 	}
 
-	image(x-y, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes)
-	mtext(side=3, text="expected - simulated", line=1, cex=cex.lab)
+	image(x-y, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes, zlim = c(-1, 1))
+	mtext(side=3, text="expected - simulated", line=0.75, cex=cex.lab)
+	if(watermark==T){
+		watermark()
+	}
 
 	if(is.null(colnames(y))){
 		mtext(side=1, text=xlab, line=2.5, cex=cex.lab)
@@ -392,28 +536,122 @@ compare_matrix=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs=c("
 
 	par(las=1)
 
-	image.scale(x-y, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab)
+	image.scale(x-y, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim = c(-1, 1))
 	par(las=3)
-	mtext(side=2, text="residuals", line=2.5, cex=cex.lab)
+	mtext(side=2, text="residuals", line=2.75, cex=cex.lab)
 
 	z=c(x,y)
 	par(mar=c(4.5, 4, 4, 3), las=1)
 	hist(x-y, xlab="", ylab="", main="", cex.lab=cex.lab, cex.axis=cex.lab, xlim=c(-max(z), max(z)), n=20)
 	mtext(side=1, text="residuals", line=2.5, cex=cex.lab)
+	if(watermark==T){
+		watermark()
+	}
+
 }
 
 
 watermark = function(){
 	tag1 = "DRAFT FIGURE"
-	tag2 = "camille.roux.1@unil.ch"
+	tag2 = ""
+	#tag2 = "camille.roux.1@unil.ch"
 	run.date <- format(Sys.Date(), "%m-%d-%Y")
 	text(x = grconvertX(0.5, from = "npc"),  # aligner au centre des X 
 	y = grconvertY(0.5, from = "npc"), # aligner au centre des Y 
 	labels = tag1, # filigrane central
 	cex = 5, font = 2, # en gros et gras
-	col = rgb(1, 0, 0, .3), # transparent 
+	col = rgb(1, 0, 0, .15), # transparent 
 	srt = 45) # angle du texte = 45° 
 	texte = paste(tag2, run.date)
-	mtext(texte, side = 1, line = -1, adj = 1, col = rgb(1, 0, 0, .3), cex = 1.5)
+	mtext(texte, side = 1, line = -1, adj = 1, col = rgb(1, 0, 0, .15), cex = 1.5)
+}
+
+cleanQuantiSexTable = function(x){
+	collage = function(a){
+		return(paste(a, collapse="_"))
+	}
+	y = cbind(x$nDemes, x$nIndMaxPerDeme, x$nQuantiLoci, x$selfingRate, x$fecundity, x$migRate, x$extRate, x$recolonization, x$sexSystem, x$sexAvantage)
+	z = apply(y, MARGIN=1, FUN="collage")
+
+	res = NULL
+
+	for(i in names(table(z))){
+		tmp = which(z==i)
+		tmp = x[tmp,]
+		res = rbind(res, apply(tmp, MARGIN=2, FUN="mean"))
+	}
+
+	return(res)
+}
+
+triVariableTable = function(x, y, z){
+	# produces a table 'res' with x as rows, y as columns: res[x,y] = z
+	# x = migration rates
+	# y = extinction rates
+	# z = Fst
+	xValues = as.numeric(names(table(x)))
+	yValues = as.numeric(names(table(y)))
+	res = matrix(NA, ncol = length(xValues), nrow = length(yValues))
+	colonne = 0
+	for(i in xValues){
+		ligne = 0
+		colonne = colonne + 1
+		for(j in yValues){
+			ligne = ligne + 1
+			tmp = mean(z[which(x == i & y == j)], na.rm = T)
+			res[ligne, colonne] = tmp
+		}
+	}
+	colnames(res) = xValues
+	rownames(res) = yValues
+	return(res)
+}
+
+
+plot3var = function(x, xlab="", ylab="", zlab="", main="", cex.lab=1, couleurs=c("green", "white", "red"), zlim = c(min(x), max(x)), watermark=F){
+	# x = table with values z as a function of 'rows' and 'columns'
+	# plot z as a function of 2 variables
+	gradient = colorRampPalette(couleurs)
+	
+	dev.new(width=8, height=7)
+	layout(matrix(c(1,2), byrow=T, ncol=2), width=c(4/5, 1/5))
+
+	par(mar=c(4.5, 4, 4, 1), las=1)
+
+	# matrice x
+	if(is.null(colnames(x))){
+		plot_axes = T
+	}else{
+		plot_axes = F
+	}
+
+	image(x, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes, zlim=zlim)
+	mtext(side=3, text=main, line=0.75, cex=cex.lab)
+
+	if(is.null(colnames(x))){
+		mtext(side=1, text=xlab, line=2.5, cex=cex.lab)
+		par(las=3)
+		mtext(side=2, text=ylab, line=2.75, cex=cex.lab)
+	}else{
+		# axe des x
+		migRates = rownames(x)
+		posX = c((seq(1, length(migRates), 2)), length(migRates))
+		axis(1, at=(posX-1)/(length(migRates)-1), labels = migRates[posX])
+		mtext(xlab, 1, line=2.5, cex=cex.lab)
+
+		# axe des y
+		extRates = colnames(x)
+		posY = c((seq(1, length(extRates), 2)), length(extRates))
+		axis(2, at=(posY-1)/(length(extRates)-1), labels = extRates[posY])
+		par(las=0)
+		mtext(ylab, 2, line=2.75, cex=cex.lab)
+	}
+	if(watermark){watermark()}
+
+	par(las=1)
+
+	image.scale(x, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim=zlim)
+	par(las=3)
+	mtext(side=2, text=zlab, line=2.5, cex=cex.lab)
 }
 
