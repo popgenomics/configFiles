@@ -2,6 +2,8 @@ library(colorout)
 setOutputColors256(202, 214, 209, 184, 172, 179, verbose=FALSE)
 options(width=160)
 library(txtplot)
+library(NostalgiR)
+
 mode=function(x){
 	dst=density(x)
 	return(dst$x[which(dst$y==max(dst$y))])
@@ -653,5 +655,50 @@ plot3var = function(x, xlab="", ylab="", zlab="", main="", cex.lab=1, couleurs=c
 	image.scale(x, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim=zlim)
 	par(las=3)
 	mtext(side=2, text=zlab, line=2.5, cex=cex.lab)
+}
+
+
+correlation = function(x, y){
+	# function that performs cor.test with the 3 methods
+	# and returns the $estimate and the $p.value
+	res = NULL
+	for(i in c("pearson", "spearman", "kendall")){
+		tmp = cor.test(x, y, method=i)
+		res = rbind(res, c(tmp$estimate, tmp$p.value))
+	}
+	rownames(res) = c("pearson", "spearman", "kendall")
+	colnames(res) = c("coefficient", "pvalue")
+	return(round(res, 5))
+}
+
+plotpi = function (pi, pos, par, i, plot_std = T, xlab="", ylab=""){
+	maxPi = max(as.numeric(unlist(pi[, grep("avg", colnames(pi))])))
+	avg = as.numeric(pi[i, grep("avg", colnames(pi))])
+	std = as.numeric(pi[i, grep("std", colnames(pi))])
+	pos = as.numeric(pos[i, ])
+	if(plot_std==T){
+		ylim = c(0, max(avg + std) * 1.05)
+	}else{
+		ylim = c(0, maxPi*1.01)
+	}
+	titre1 = paste(colnames(par), collapse = "\t")
+	titre2 = paste(par[i, ], collapse = "\t")
+	titre = paste(titre1, titre2, sep = "\n")
+	plot(pos, avg, xlim=c(0,1), ylim = ylim, col = "white", main = titre, xlab=xlab, ylab=ylab)
+	if(plot_std==T){
+		polygon(c(pos, rev(pos)), c(avg + std, rev(avg - std)), col = rgb(1, 0, 0, 0.25))
+	}
+	points(pos, avg, pch = 16, cex = 1.1)
+}
+
+plotABCsweep = function(i){
+	# i = Id of replicate
+	par(mfrow=c(3,2), mar=c(4.5, 3.95, 3, 1.95))
+	plot(as.numeric(pos[i,]), as.numeric(tajD[i,]), xlim=c(0,1), xlab="position", ylab="tajD", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
+	plot(as.numeric(pos[i,]), as.numeric(achazY[i,]), xlim=c(0,1), xlab="position", ylab="achazY", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
+	plot(as.numeric(pos[i,]), as.numeric(pi_avg[i,]), xlim=c(0,1), xlab="position", ylab="pi avg", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
+	plot(as.numeric(pos[i,]), as.numeric(pi_std[i,]), xlim=c(0,1), xlab="position", ylab="pi std", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
+	plot(as.numeric(pos[i,]), as.numeric(pearsonR[i,]), xlim=c(0,1), xlab="position", ylab="pearsonR", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
+	plot(as.numeric(pos[i,]), as.numeric(pearsonP[i,]), xlim=c(0,1), xlab="position", ylab="pearsonP", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
 }
 

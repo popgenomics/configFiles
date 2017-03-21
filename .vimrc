@@ -6,6 +6,7 @@ set number
 set showcmd
 set incsearch
 set hlsearch
+set hidden 
 
 filetype off
 
@@ -37,6 +38,7 @@ set term=xterm-256color
 syntax enable
 set background=dark
 colorscheme default
+color desert 
 
 set laststatus=2
 
