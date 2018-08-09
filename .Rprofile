@@ -610,9 +610,10 @@ triVariableTable = function(x, y, z){
 }
 
 
-plot3var = function(x, xlab="", ylab="", zlab="", main="", cex.lab=1, couleurs=c("green", "white", "red"), zlim = c(min(x), max(x)), watermark=F){
+plot3var = function(x, xlab="", ylab="", zlab="", main="", cex.lab=1, couleurs=c("green", "white", "red"), zlim = c(min(x), max(x)), watermark=F, nlevels=10){
 	# x = table with values z as a function of 'rows' and 'columns'
 	# plot z as a function of 2 variables
+	# best continuous gradient: c("#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58")
 	gradient = colorRampPalette(couleurs)
 	
 	dev.new(width=8, height=7)
@@ -627,7 +628,7 @@ plot3var = function(x, xlab="", ylab="", zlab="", main="", cex.lab=1, couleurs=c
 		plot_axes = F
 	}
 
-	image(x, xlab="", ylab="", col=gradient(100), cex.axis=cex.lab, axes=plot_axes, zlim=zlim)
+	image(x, xlab="", ylab="", col=gradient(nlevels), cex.axis=cex.lab, axes=plot_axes, zlim=zlim)
 	mtext(side=3, text=main, line=0.75, cex=cex.lab)
 
 	if(is.null(colnames(x))){
@@ -652,7 +653,7 @@ plot3var = function(x, xlab="", ylab="", zlab="", main="", cex.lab=1, couleurs=c
 
 	par(las=1)
 
-	image.scale(x, horiz=F, col=gradient(100), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim=zlim)
+	image.scale(x, horiz=F, col=gradient(nlevels), xlab="", ylab="", cex.lab=cex.lab, cex.axis=cex.lab, zlim=zlim)
 	par(las=3)
 	mtext(side=2, text=zlab, line=2.5, cex=cex.lab)
 }
@@ -700,5 +701,58 @@ plotABCsweep = function(i){
 	plot(as.numeric(pos[i,]), as.numeric(pi_std[i,]), xlim=c(0,1), xlab="position", ylab="pi std", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
 	plot(as.numeric(pos[i,]), as.numeric(pearsonR[i,]), xlim=c(0,1), xlab="position", ylab="pearsonR", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
 	plot(as.numeric(pos[i,]), as.numeric(pearsonP[i,]), xlim=c(0,1), xlab="position", ylab="pearsonP", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
+}
+
+plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", cex.lab = 1, couleurs = c("green", "white", "red"), zlim = c(min(z), max(z)), watermark = F, nlevels = 10){
+    mat = matrix(NA, length(table(y)), length(table(x)))
+    colnames(mat) = names(table(x)) 
+    rownames(mat) = names(table(y)) 
+    # convert the 3 vectors x, y and z in a matrix mat[y, x] = z 
+    ligne = 0
+    colonne = 0 
+    for( x_i in as.numeric(names(table(x))) ){ # variable 'x' in column
+        colonne = colonne + 1
+        ligne = 0
+        for( y_i in as.numeric(names(table(y))) ){ # variable 'y' in raw
+            ligne = ligne + 1
+            mat[ligne, colonne] = z[which(x==x_i & y==y_i)]
+        }
+    }
+        
+    # create a gradient of colors and a graphic window
+    gradient = colorRampPalette(couleurs)
+    dev.new(width = 8, height = 7)
+    layout(matrix(c(1, 2), byrow = T, ncol = 2), width = c(4/5, 1/5))
+    par(mar = c(4.5, 4, 4, 1), las = 1)
+    
+    # plot
+    image(t(mat), xlab = "", ylab = "", col = gradient(nlevels), cex.axis = cex.lab, axes = F, zlim = zlim)
+    mtext(side = 3, text = main, line = 0.75, cex = cex.lab)
+    
+    if (is.null(colnames(mat))) {
+        mtext(side = 1, text = xlab, line = 2.5, cex = cex.lab)
+        par(las = 3)
+        mtext(side = 2, text = ylab, line = 2.75, cex = cex.lab)
+    }
+    else {
+        migRates = rownames(mat)
+        posX = c((seq(1, length(migRates), 2)), length(migRates))
+        axis(1, at=0:(length(table(x))-1)/(length(table(x))-1), labels=names(table(x)))
+
+        mtext(xlab, 1, line = 2.5, cex = cex.lab)
+        extRates = colnames(mat)
+        posY = c((seq(1, length(extRates), 2)), length(extRates))
+        axis(2, at=0:(length(table(y))-1)/(length(table(y))-1), labels=names(table(y)))
+        par(las = 0)
+        mtext(ylab, 2, line = 2.75, cex = cex.lab)
+    }
+    if (watermark) {
+        watermark()
+    }
+    par(las = 1)
+    image.scale(mat, horiz = F, col = gradient(nlevels), xlab = "",
+        ylab = "", cex.lab = cex.lab, cex.axis = cex.lab, zlim = zlim)
+    par(las = 3)
+    mtext(side = 2, text = zlab, line = 2.5, cex = cex.lab)
 }
 
