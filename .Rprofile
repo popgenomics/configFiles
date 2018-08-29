@@ -554,7 +554,7 @@ compare_matrix_fst=function(x, y, xlab="", ylab="", zlab="", cex.lab=1, couleurs
 
 
 watermark = function(){
-	tag1 = "DRAFT FIGURE"
+	tag1 = "TAKE CARE\nJEAN-PIERRE"
 	tag2 = ""
 	#tag2 = "camille.roux.1@unil.ch"
 	run.date <- format(Sys.Date(), "%m-%d-%Y")
@@ -703,7 +703,8 @@ plotABCsweep = function(i){
 	plot(as.numeric(pos[i,]), as.numeric(pearsonP[i,]), xlim=c(0,1), xlab="position", ylab="pearsonP", type="l", cex.lab=1.2, lwd=2); abline(v=par$Sp[i], col="red")
 }
 
-plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", cex.lab = 1, couleurs = c("green", "white", "red"), zlim = c(min(z), max(z)), watermark = F, nlevels = 10){
+
+plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", cex.lab = 1, couleurs = c("#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"), zlim = NULL, watermark = F, nlevels = 10){
 
 	median_z = c()    
     
@@ -742,12 +743,14 @@ plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", cex
 	par(mar = c(4.5, 4, 4, 1), las = 1)
 	
 	# plot
+	if (is.null(zlim)){
+		zlim = range(mat)
+	}
 	image(t(mat), xlab = "", ylab = "", col = gradient(nlevels), cex.axis = cex.lab, axes = F, zlim = zlim)
 	mtext(side = 3, text = main, line = 0.75, cex = cex.lab)
    
 	text( (min_x-1)/(length(table(x))-1), (min_y-1)/(length(table(y))-1), round(min_z, 2), col=gradient(nlevels)[nlevels])
 	text( (max_x-1)/(length(table(x))-1), (max_y-1)/(length(table(y))-1), round(max_z, 2), col=gradient(nlevels)[1])
-
 
  
 	if (is.null(colnames(mat))) {
