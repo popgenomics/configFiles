@@ -780,3 +780,11 @@ plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", cex
 	mtext(side = 2, text = zlab, line = 2.5, cex = cex.lab)
 }
 
+
+proba_bayes = function(obs, dé, prior){
+	p_obs_dé = dé; for(i in 1:length(dé)){if(obs[1]>dé[i]){p_obs_dé[i]=0}else{p_obs_dé[i]=1/dé[i]}}
+	p_obs = sum(prior*p_obs_dé)
+	p_dé_obs = prior*p_obs_dé/p_obs
+	return(p_dé_obs)
+}
+

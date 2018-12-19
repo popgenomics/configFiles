@@ -25,7 +25,7 @@ Plugin 'bling/vim-airline'
 " Plugin 'jistr/vim-nerdtree-tabs'
 " Plugin 'klen/python-mode'
  let g:pymode_options_colorcolumn = 0
-" Plugin 'YouCompleteMe'
+" Plugin 'Valloric/YouCompleteMe'
 
 call vundle#end()
 
