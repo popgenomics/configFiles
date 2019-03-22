@@ -25,7 +25,11 @@ Plugin 'bling/vim-airline'
 " Plugin 'jistr/vim-nerdtree-tabs'
 " Plugin 'klen/python-mode'
  let g:pymode_options_colorcolumn = 0
-" Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
+"let g:ycm_global_ycm_extra_conf = '/home/croux/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+"let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/youcompleteme/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+"let g:ycm_global_ycm_extra_conf = '/home/croux/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/tests/clang/testdata/noflags/.ycm_extra_conf.py'
+let g:ycm_global_ycm_extra_conf = '/home/croux/.vim/bundle/YouCompleteMe/third_party/ycmd/.ycm_extra_conf.py'
 
 call vundle#end()
 
@@ -54,7 +58,8 @@ map £ 0
 
 
 "Copy Paste in the xclipboard
-if has("unnamedplus") && has("xterm_clipboard") && hostname() == 'byssus'
+if has("unnamedplus") && has("xterm_clipboard") && hostname() == 'nappa'
 set clipboard=unnamedplus
 endif
+
 

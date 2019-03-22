@@ -704,81 +704,82 @@ plotABCsweep = function(i){
 }
 
 
-plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", cex.lab = 1, couleurs = c("#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"), zlim = NULL, watermark = F, nlevels = 10){
-
-	median_z = c()    
-    
-	mat = matrix(NA, length(table(y)), length(table(x)))
-	colnames(mat) = names(table(x)) 
-	rownames(mat) = names(table(y)) 
-	# convert the 3 vectors x, y and z in a matrix mat[y, x] = z 
-	ligne = 0
-	colonne = 0 
-	for( x_i in as.numeric(names(table(x))) ){ # variable 'x' in column
-		colonne = colonne + 1
-		ligne = 0
-		for( y_i in as.numeric(names(table(y))) ){ # variable 'y' in raw
-			ligne = ligne + 1
-			mat[ligne, colonne] = median(z[which(x==x_i & y==y_i)])
-	   
-		median_z = c(median_z, mat[ligne, colonne])
-			
-		}
-	}
-
-	min_arr = which(mat==min(mat), arr.ind = T)
-	max_arr = which(mat==max(mat), arr.ind = T)
-		 
-	min_x = min_arr[,2]
-	max_x = max_arr[,2] 
-	min_y = min_arr[,1]
-	max_y = max_arr[,1]
-	min_z = min(mat)
-	max_z = max(mat)
-	
-	# create a gradient of colors and a graphic window
-	gradient = colorRampPalette(couleurs)
-	dev.new(width = 8, height = 7)
-	layout(matrix(c(1, 2), byrow = T, ncol = 2), width = c(4/5, 1/5))
-	par(mar = c(4.5, 4, 4, 1), las = 1)
-	
-	# plot
-	if (is.null(zlim)){
-		zlim = range(mat)
-	}
-	image(t(mat), xlab = "", ylab = "", col = gradient(nlevels), cex.axis = cex.lab, axes = F, zlim = zlim)
-	mtext(side = 3, text = main, line = 0.75, cex = cex.lab)
-   
-	text( (min_x-1)/(length(table(x))-1), (min_y-1)/(length(table(y))-1), round(min_z, 2), col=gradient(nlevels)[nlevels])
-	text( (max_x-1)/(length(table(x))-1), (max_y-1)/(length(table(y))-1), round(max_z, 2), col=gradient(nlevels)[1])
-
- 
-	if (is.null(colnames(mat))) {
-		mtext(side = 1, text = xlab, line = 2.5, cex = cex.lab)
-		par(las = 3)
-		mtext(side = 2, text = ylab, line = 2.75, cex = cex.lab)
-	}
-	else {
-		migRates = rownames(mat)
-		posX = c((seq(1, length(migRates), 2)), length(migRates))
-		axis(1, at=0:(length(table(x))-1)/(length(table(x))-1), labels=names(table(x)))
-
-		mtext(xlab, 1, line = 2.5, cex = cex.lab)
-		extRates = colnames(mat)
-		posY = c((seq(1, length(extRates), 2)), length(extRates))
-		axis(2, at=0:(length(table(y))-1)/(length(table(y))-1), labels=names(table(y)))
-		par(las = 0)
-		mtext(ylab, 2, line = 2.75, cex = cex.lab)
-	}
-	if (watermark) {
-		watermark()
-	}
-	par(las = 1)
-	image.scale(mat, horiz = F, col = gradient(nlevels), xlab = "",
-		ylab = "", cex.lab = cex.lab, cex.axis = cex.lab, zlim = zlim)
-	par(las = 3)
-	mtext(side = 2, text = zlab, line = 2.5, cex = cex.lab)
-}
+#plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", cex.lab = 1, couleurs = c("#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"), zlim = NULL, watermark = F, nlevels = 10){
+#
+#	median_z = c()    
+#   
+#	mat = matrix(NA, length(table(y)), length(table(x)))
+#	colnames(mat) = names(table(x)) 
+#	rownames(mat) = names(table(y)) 
+#	# convert the 3 vectors x, y and z in a matrix mat[y, x] = z 
+#	ligne = 0
+#	colonne = 0 
+#	for( x_i in as.numeric(names(table(x))) ){ # variable 'x' in column
+#		colonne = colonne + 1
+#		ligne = 0
+#		for( y_i in as.numeric(names(table(y))) ){ # variable 'y' in raw
+#			ligne = ligne + 1
+#			mat[ligne, colonne] = median(z[which(x==x_i & y==y_i)])
+#	   
+#		median_z = c(median_z, mat[ligne, colonne])
+#			
+#		}
+#	}
+#
+#	min_arr = which(mat==min(mat), arr.ind = T)
+#	max_arr = which(mat==max(mat), arr.ind = T)
+#		 
+#	min_x = min_arr[,2]
+#	max_x = max_arr[,2] 
+#	min_y = min_arr[,1]
+#	max_y = max_arr[,1]
+#	min_z = min(mat)
+#	max_z = max(mat)
+#	
+#	# create a gradient of colors and a graphic window
+#	gradient = colorRampPalette(couleurs)
+#	dev.new(width = 8, height = 7)
+#	layout(matrix(c(1, 2), byrow = T, ncol = 2), width = c(4/5, 1/5))
+#	par(mar = c(4.5, 4, 4, 1), las = 1)
+#	
+#	# plot
+#	if (is.null(zlim)){
+#		zlim = range(mat)
+#	}
+#	print(mat)
+#	image(t(mat), xlab = "", ylab = "", col = gradient(nlevels), cex.axis = cex.lab, axes = F, zlim = zlim)
+#	mtext(side = 3, text = main, line = 0.75, cex = cex.lab)
+# 
+#	text( (min_x-1)/(length(table(x))-1), (min_y-1)/(length(table(y))-1), round(min_z, 2), col=gradient(nlevels)[nlevels])
+#	text( (max_x-1)/(length(table(x))-1), (max_y-1)/(length(table(y))-1), round(max_z, 2), col=gradient(nlevels)[1])
+#
+# 
+#	if (is.null(colnames(mat))) {
+#		mtext(side = 1, text = xlab, line = 2.5, cex = cex.lab)
+#		par(las = 3)
+#		mtext(side = 2, text = ylab, line = 2.75, cex = cex.lab)
+#	}
+#	else {
+#		migRates = rownames(mat)
+#		posX = c((seq(1, length(migRates), 2)), length(migRates))
+#		axis(1, at=0:(length(table(x))-1)/(length(table(x))-1), labels=names(table(x)))
+#
+#		mtext(xlab, 1, line = 2.5, cex = cex.lab)
+#		extRates = colnames(mat)
+#		posY = c((seq(1, length(extRates), 2)), length(extRates))
+#		axis(2, at=0:(length(table(y))-1)/(length(table(y))-1), labels=names(table(y)))
+#		par(las = 0)
+#		mtext(ylab, 2, line = 2.75, cex = cex.lab)
+#	}
+#	if (watermark) {
+#		watermark()
+#	}
+#	par(las = 1)
+#	image.scale(mat, horiz = F, col = gradient(nlevels), xlab = "",
+#		ylab = "", cex.lab = cex.lab, cex.axis = cex.lab, zlim = zlim)
+#	par(las = 3)
+#	mtext(side = 2, text = zlab, line = 2.5, cex = cex.lab)
+#}
 
 
 proba_bayes = function(obs, dé, prior){
@@ -786,5 +787,90 @@ proba_bayes = function(obs, dé, prior){
 	p_obs = sum(prior*p_obs_dé)
 	p_dé_obs = prior*p_obs_dé/p_obs
 	return(p_dé_obs)
+}
+
+plot3var_v2 = function (x, y, z, xlab = "", ylab = "", zlab = "", main = "", 
+    cex.lab = 1, couleurs = c("#ffffd9", "#edf8b1", "#c7e9b4", 
+        "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", 
+        "#081d58"), zlim = NULL, watermark = F, nlevels = 10) 
+{
+    median_z = c()
+    mat = matrix(NA, length(table(y)), length(table(x)))
+    colnames(mat) = names(table(x))
+    rownames(mat) = names(table(y))
+    ligne = 0
+    colonne = 0
+    for (x_i in as.numeric(names(table(x)))) {
+        colonne = colonne + 1
+        ligne = 0
+        for (y_i in as.numeric(names(table(y)))) {
+            ligne = ligne + 1
+            mat[ligne, colonne] = median(z[which(x == x_i & y == 
+                y_i)])
+            median_z = c(median_z, mat[ligne, colonne])
+        }
+    }
+    min_arr = which(mat == min(mat), arr.ind = T)
+    max_arr = which(mat == max(mat), arr.ind = T)
+    min_x = min_arr[, 2]
+    max_x = max_arr[, 2]
+    min_y = min_arr[, 1]
+    max_y = max_arr[, 1]
+    min_z = min(mat)
+    max_z = max(mat)
+    gradient = colorRampPalette(couleurs)
+    dev.new(width = 8, height = 7)
+    layout(matrix(c(1, 2), byrow = T, ncol = 2), width = c(4/5, 
+        1/5))
+    par(mar = c(4.5, 4, 4, 1), las = 1)
+    if (is.null(zlim)) {
+        zlim = range(mat)
+    }
+    print(mat)
+
+    if(length(min_x) == 1 && length(max_x) == 1){
+	    image(t(mat), xlab = "", ylab = "", col = gradient(nlevels), 
+		cex.axis = cex.lab, axes = F, zlim = zlim)
+	    mtext(side = 3, text = main, line = 0.75, cex = cex.lab)
+	    text((min_x - 1)/(length(table(x)) - 1), (min_y - 1)/(length(table(y)) - 
+		1), round(min_z, 2), col = gradient(nlevels)[nlevels])
+	    text((max_x - 1)/(length(table(x)) - 1), (max_y - 1)/(length(table(y)) - 
+		1), round(max_z, 2), col = gradient(nlevels)[1])
+    }else{
+	    image(t(mat), xlab = "", ylab = "", col = gradient(nlevels), 
+		cex.axis = cex.lab, axes = F, zlim = zlim)
+	    mtext(side = 3, text = main, line = 0.75, cex = cex.lab)
+	    text((min_x[1] - 1)/(length(table(x)) - 1), (min_y[1] - 1)/(length(table(y)) - 
+		1), round(min_z[1], 2), col = gradient(nlevels)[nlevels])
+	    text((max_x[1] - 1)/(length(table(x)) - 1), (max_y[1] - 1)/(length(table(y)) - 
+		1), round(max_z[1], 2), col = gradient(nlevels)[1])
+    }
+
+    if (is.null(colnames(mat))) {
+        mtext(side = 1, text = xlab, line = 2.5, cex = cex.lab)
+        par(las = 3)
+        mtext(side = 2, text = ylab, line = 2.75, cex = cex.lab)
+    }
+    else {
+        migRates = rownames(mat)
+        posX = c((seq(1, length(migRates), 2)), length(migRates))
+        axis(1, at = 0:(length(table(x)) - 1)/(length(table(x)) - 
+            1), labels = names(table(x)))
+        mtext(xlab, 1, line = 2.5, cex = cex.lab)
+        extRates = colnames(mat)
+        posY = c((seq(1, length(extRates), 2)), length(extRates))
+        axis(2, at = 0:(length(table(y)) - 1)/(length(table(y)) - 
+            1), labels = names(table(y)))
+        par(las = 0)
+        mtext(ylab, 2, line = 2.75, cex = cex.lab)
+    }
+    if (watermark) {
+        watermark()
+    }
+    par(las = 1)
+    image.scale(mat, horiz = F, col = gradient(nlevels), xlab = "", 
+        ylab = "", cex.lab = cex.lab, cex.axis = cex.lab, zlim = zlim)
+    par(las = 3)
+    mtext(side = 2, text = zlab, line = 2.5, cex = cex.lab)
 }
 
